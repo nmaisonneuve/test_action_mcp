@@ -1,0 +1,127 @@
+# ActionMCP Configuration
+# This file contains configuration for the ActionMCP server including
+# authentication, profiles, and pub/sub system settings.
+
+shared:
+  # Authentication configuration - array of methods to try in order
+  authentication: ['none'] # No authentication required by default
+
+  # Session store configuration
+  # Global session store type used by both client and server (default: volatile in dev/test, active_record in production)
+  # session_store_type: volatile
+
+  # Client-specific session store type (falls back to session_store_type if not specified)
+  # client_session_store_type: volatile
+
+  # Server-specific session store type (falls back to session_store_type if not specified)
+  # server_session_store_type: active_record
+
+  # OAuth configuration (if using OAuth authentication)
+  # oauth:
+  #   provider: "demo_oauth_provider"
+  #   scopes_supported: ["mcp:tools", "mcp:resources", "mcp:prompts"]
+  #   enable_dynamic_registration: true
+  #   enable_token_revocation: true
+  #   pkce_required: true
+  #   issuer_url: https://yourapp.com
+
+  # MCP capability profiles
+  profiles:
+    primary:
+      tools:
+        - all
+      prompts:
+        - all
+      resources:
+        - all
+      options:
+        list_changed: false
+        logging_enabled: true
+        resources_subscribe: false
+
+    minimal:
+      tools: []
+      prompts: []
+      resources: []
+      options:
+        list_changed: false
+        logging_enabled: false
+        logging_level: warn
+        resources_subscribe: false
+
+# Development environment
+development:
+  # Use solid_mcp pub/sub adapter for development
+  adapter: solid_mcp
+  polling_interval: 0.1
+  batch_size: 100
+  flush_interval: 0.05
+
+  # Session store - use active_record for Falcon multi-process compatibility
+  session_store_type: active_record
+
+  # Thread pool configuration (optional)
+  # min_threads: 5     # Minimum number of threads in the pool
+  # max_threads: 10    # Maximum number of threads in the pool
+  # max_queue: 100     # Maximum number of tasks that can be queued
+
+# Test environment
+test:
+  # JWT authentication for testing environment
+  authentication: ['jwt']
+
+  # Test adapter for testing
+  adapter: test
+
+  # Use volatile sessions for testing (fast cleanup)
+  # session_store_type: volatile
+
+# Production environment
+production:
+  # Multiple authentication methods - try OAuth first, fallback to JWT
+  authentication: ['oauth', 'jwt']
+
+  # OAuth configuration for production
+  oauth:
+    provider: 'application_oauth_provider' # Your custom provider class
+    scopes_supported: ['mcp:tools', 'mcp:resources', 'mcp:prompts']
+    enable_dynamic_registration: true
+    enable_token_revocation: true
+    pkce_required: true
+    issuer_url: https://yourapp.com
+
+  # Additional production profiles for external clients
+  profiles:
+    external_clients:
+      tools: ['WeatherForecastTool'] # Limited tool access for external clients
+      prompts: []
+      resources: []
+
+  # Production session store configuration
+  # Use persistent storage for production reliability
+  # session_store_type: active_record
+  # Or configure separately:
+  # client_session_store_type: active_record  # Client connections persist across restarts
+  # server_session_store_type: active_record  # Server state persists across deployments
+
+  # Choose one of the following adapters:
+
+  # 1. Database-backed adapter (recommended)
+  adapter: solid_mcp
+  polling_interval: 0.5.seconds
+  batch_size: 200 # Number of messages to write in a single batch
+  flush_interval: 0.05 # Seconds between batch flushes
+
+  # Thread pool configuration (optional)
+  min_threads: 10 # Minimum number of threads in the pool
+  max_threads: 20 # Maximum number of threads in the pool
+  max_queue: 500 # Maximum number of tasks that can be queued
+
+
+  # 2. Redis-backed adapter (alternative)
+  # adapter: redis
+  # url: redis://localhost:6379/1
+  # channel_prefix: my_mcp_app_production
+  # min_threads: 10    # Minimum number of threads in the pool
+  # max_threads: 20    # Maximum number of threads in the pool
+  # max_queue: 500     # Maximum number of tasks that can be queued

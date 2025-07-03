@@ -1,0 +1,133 @@
+services:
+  vite:
+    build:
+      context: .
+    #command: ./bin/vite dev
+    command: /bin/bash -c "yarn install && ./bin/vite dev"
+    env_file: .env.dev
+    ports:
+      - '3036:3036'
+    volumes:
+      - .:/rails
+      - ruby-bundle-cache:/bundle
+      - /rails/node_modules
+      - vite_dev:/rails/public/vite-dev
+      - vite_test:/rails/public/vite-test
+    environment:
+      YARN_CACHE_FOLDER: /rails/node_modules/.yarn-cache
+      RAILS_ENV: development
+      VITE_RUBY_HOST: 0.0.0.0
+    tty: true
+    stdin_open: true
+
+  web:
+    build: .
+    command: /bin/bash -c "[ -d node_modules ] || yarn install && rm -f /tmp/server.pid && bundle exec rails server -b 0.0.0.0 -P /tmp/server.pid"
+    env_file: .env.dev
+    ports:
+      - 3000:3000
+    depends_on:
+      - vite
+      - db
+      - redis
+    volumes:
+      - .:/rails
+      - ruby-bundle-cache:/bundle
+      - /rails/node_modules
+      - vite_dev:/rails/public/vite-dev
+      - vite_test:/rails/public/vite-test
+    environment:
+      YARN_CACHE_FOLDER: /rails/node_modules/.yarn-cache
+      VITE_RUBY_HOST: ${VITE_HOST:-vite}
+      NODE_ENV: ${NODE_ENV:-development}
+      RAILS_ENV: ${RAILS_ENV:-development}
+      REDIS_URL_SIDEKIQ: redis://redis:6379/1
+    tty: true
+    stdin_open: true
+    tmpfs:
+      - /tmp
+      - /rails/tmp/pids
+
+  mcp:
+    build: .
+    command: /bin/bash -c "[ -d node_modules ] || yarn install && rm -f /tmp/mcp.pid && bundle exec falcon serve --bind http://0.0.0.0:62770 -c mcp_vanilla.ru"
+    env_file: .env.dev
+    ports:
+      - 62770:62770
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - .:/rails
+      - ruby-bundle-cache:/bundle
+      - /rails/node_modules
+      - vite_dev:/rails/public/vite-dev
+      - vite_test:/rails/public/vite-test
+    environment:
+      YARN_CACHE_FOLDER: /rails/node_modules/.yarn-cache
+      VITE_RUBY_HOST: ${VITE_HOST:-vite}
+      NODE_ENV: ${NODE_ENV:-development}
+      RAILS_ENV: ${RAILS_ENV:-development}
+      REDIS_URL_SIDEKIQ: redis://redis:6379/1
+    tty: true
+    stdin_open: true
+    tmpfs:
+      - /tmp
+      - /rails/tmp/pids
+
+  redis:
+    image: 'redis:8.0-M02-alpine'
+    command: redis-server /usr/local/etc/redis/redis.conf
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    ports:
+      - '6379:6379'
+    volumes:
+      - ./tmp/redis_data:/var/lib/redis/data
+      - ./config/redis.conf:/usr/local/etc/redis/redis.conf
+
+  sidekiq:
+    build: .
+    command: bundle exec sidekiq -C config/sidekiq.yml
+    env_file: .env.dev
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - .:/rails
+      - ruby-bundle-cache:/bundle
+      - /rails/node_modules
+      - vite_dev:/rails/public/vite-dev
+      - vite_test:/rails/public/vite-test
+    environment:
+      REDIS_URL: redis://redis:6379
+      REDIS_URL_SIDEKIQ: redis://redis:6379/1
+      YARN_CACHE_FOLDER: /rails/node_modules/.yarn-cache
+      VITE_RUBY_HOST: ${VITE_HOST:-vite}
+      NODE_ENV: ${NODE_ENV:-development}
+      RAILS_ENV: ${RAILS_ENV:-development}
+    tty: true
+    stdin_open: true
+    tmpfs:
+      - /tmp
+      - /rails/tmp/pids
+
+  db:
+    image: ghcr.io/baosystems/postgis:15-3.3
+    restart: always
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    ports:
+      - 5432:5432
+    volumes:
+      - ./tmp/postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init-postgis.sql:/docker-entrypoint-initdb.d/init-postgis.sql
+
+volumes:
+  vite_dev:
+  vite_test:
+  ruby-bundle-cache:
+    external: true

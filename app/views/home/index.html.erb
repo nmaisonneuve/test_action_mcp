@@ -1,0 +1,22 @@
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">
+          <h2>Welcome to Your Dashboard</h2>
+        </div>
+        <div class="card-body">
+          <h4>Hello, <%= @user.email %>!</h4>
+          <p>You are successfully logged in.</p>
+          
+          <div class="mt-4">
+            <%= link_to "Edit Profile", edit_user_registration_path, class: "btn btn-primary" %>
+            <%= link_to "Logout", destroy_user_session_path, method: :delete, 
+                class: "btn btn-secondary ml-2", 
+                confirm: "Are you sure you want to logout?" %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
