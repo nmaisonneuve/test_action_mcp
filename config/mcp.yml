@@ -4,7 +4,7 @@
 
 shared:
   # Authentication configuration - array of methods to try in order
-  authentication: ['none'] # No authentication required by default
+  authentication: ["none"] # No authentication required by default
 
   # Session store configuration
   # Global session store type used by both client and server (default: volatile in dev/test, active_record in production)
@@ -27,7 +27,7 @@ shared:
 
   # MCP capability profiles
   profiles:
-    primary:
+    admin:
       tools:
         - all
       prompts:
@@ -51,7 +51,7 @@ shared:
 
 # Development environment
 development:
-  authentication: ['jwt']
+  authentication: ["jwt"]
   # Use solid_mcp pub/sub adapter for development
   adapter: solid_mcp
   polling_interval: 0.1
@@ -69,7 +69,7 @@ development:
 # Test environment
 test:
   # JWT authentication for testing environment
-  authentication: ['jwt']
+  authentication: ["jwt"]
 
   # Test adapter for testing
   adapter: test
@@ -80,12 +80,12 @@ test:
 # Production environment
 production:
   # Multiple authentication methods - try OAuth first, fallback to JWT
-  authentication: ['oauth', 'jwt']
+  authentication: ["oauth", "jwt"]
 
   # OAuth configuration for production
   oauth:
-    provider: 'application_oauth_provider' # Your custom provider class
-    scopes_supported: ['mcp:tools', 'mcp:resources', 'mcp:prompts']
+    provider: "application_oauth_provider" # Your custom provider class
+    scopes_supported: ["mcp:tools", "mcp:resources", "mcp:prompts"]
     enable_dynamic_registration: true
     enable_token_revocation: true
     pkce_required: true
@@ -94,7 +94,7 @@ production:
   # Additional production profiles for external clients
   profiles:
     external_clients:
-      tools: ['WeatherForecastTool'] # Limited tool access for external clients
+      tools: ["WeatherForecastTool"] # Limited tool access for external clients
       prompts: []
       resources: []
 
