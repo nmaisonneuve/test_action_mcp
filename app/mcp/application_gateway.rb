@@ -19,12 +19,19 @@ class ApplicationGateway < ActionMCP::Gateway
     user = resolve_user(payload)
 
     raise ActionMCP::UnauthorizedError, "Unauthorized" unless user
+    
+    if user.admin?
+      ActionMCP.configuration.use_profile(:admin)
+    else
+      ActionMCP.configuration.use_profile(:none)
+    end
 
     # Return a hash with all identified_by attributes
     { user: user }
   rescue ActionMCP::JwtDecoder::DecodeError => e
     raise ActionMCP::UnauthorizedError, e.message
   end
+
 
   private
 
