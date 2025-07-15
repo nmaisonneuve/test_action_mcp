@@ -7,3 +7,10 @@
 #   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
+require "jwt"
+
+User.create(email:"test@test.com",password:"test")
+ap "JWT for user (user 1): "
+
+User.create(email:"admin@test.com",password:"test", admin: true)
+ap "JWT for admin (user 2): "

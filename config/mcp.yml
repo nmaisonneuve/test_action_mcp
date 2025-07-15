@@ -39,7 +39,7 @@ shared:
         logging_enabled: true
         resources_subscribe: false
 
-    minimal:
+    primary:
       tools: []
       prompts: []
       resources: []
@@ -51,6 +51,7 @@ shared:
 
 # Development environment
 development:
+  authentication: ['jwt']
   # Use solid_mcp pub/sub adapter for development
   adapter: solid_mcp
   polling_interval: 0.1

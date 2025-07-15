@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_04_092013) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_15_051158) do
   create_table "action_mcp_session_messages", force: :cascade do |t|
     t.string "session_id", null: false
     t.string "direction", default: "client", null: false
@@ -104,6 +104,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_04_092013) do
     t.datetime "remember_created_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "admin"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
