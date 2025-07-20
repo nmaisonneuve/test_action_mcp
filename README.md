@@ -1,6 +1,7 @@
 # README
 
-./start_mcp_server.sh
+bin/rails db:seed
 
-JWT TOKEN (wrong one)
-eyJhbGciOiJIUzI1NiJ9.MQ.84cwg5mjk8VMBA9LoXqnAg3S80d7peLDS2jCoyv3hXc
+# 2 users will be created , one admin , the other one normal. use the jwt token of the first user (admin)
+
+./start_mcp_server.sh
