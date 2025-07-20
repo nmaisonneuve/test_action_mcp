@@ -9,8 +9,10 @@
 #   end
 require "jwt"
 
-User.create(email:"test@test.com",password:"test")
-ap "JWT for user (user 1): "
+u = User.create(email:"test@test.com",password:"test1234")
+u.save!
+puts "JWT for user (user #{u.id}): #{JWT.encode({ user_id: u.id }, "secret", "HS256")}"
 
-User.create(email:"admin@test.com",password:"test", admin: true)
-ap "JWT for admin (user 2): "
+u=User.create(email:"admin@test.com",password:"test1234", admin: true)
+u.save!
+puts "JWT for admin (user #{u.id}): #{JWT.encode({ user_id: u.id }, "secret", "HS256")}"
